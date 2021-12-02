@@ -33,8 +33,10 @@ private:
 	void setUI();
 
 	Caisse* caisse_;
+
 	QListWidget* articlesList_;
 	QLineEdit* descriptionEditor_, * prixEditor_;
 	QCheckBox* taxEditor_;
 	QLabel* prixBTaxLabel_;
+	QPushButton* delArticleButton_;
 };

@@ -11,6 +11,7 @@
 #include <QListWidget>
 #include <QVariant>
 #include <Qstring>
+#include <QMessageBox>
 #pragma pop()
 #include <iostream>
 #include <type_traits>
@@ -33,12 +34,25 @@ CaisseWindow::~CaisseWindow() {};
 // Ajout d'article
 void CaisseWindow::addArticle()
 {
+
 	Article* newArticle = new Article;
 	newArticle->description = descriptionEditor_->text().toStdString();
 	newArticle->prix = prixEditor_->text().toDouble();
 	newArticle->taxable = taxEditor_->isChecked();
-	caisse_->addArticle(newArticle);
+	try {
+		caisse_->addArticle(newArticle);
+	}
+	catch (invalid_argument& a) {
+		QMessageBox messageBox;
+		messageBox.critical(0, "Article incomplet",
+			a.what());
+	}
 	caisse_->addToTotal(newArticle->prix);
+
+
+	// REPETITION
+	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
+	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
 }
 
 void CaisseWindow::articleHasBeenAdded(Article* article)
@@ -46,13 +60,17 @@ void CaisseWindow::articleHasBeenAdded(Article* article)
 	int taillePrix = to_string(article->prix).size() - 4;
 	string affichagePrix = to_string(round(article->prix * 100) / 100).erase(taillePrix, 4);
 
-	string infoArticle = article->description + "\t" + affichagePrix + "$" + "\t" + to_string(article->taxable);
+	// On regarde si taxable ou non
+	string taxable = "";
+	if (article->taxable)
+		taxable = "taxable";
+
+	string infoArticle = article->description + "\t" + affichagePrix + "$" + "\t" + taxable;
 	QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(infoArticle), articlesList_);
 	item->setData(Qt::UserRole, QVariant::fromValue<Article*>(article));
 
-	// Decalage------------------------------------------------------------------- + REPETITION
-	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
-	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	delArticleButton_->setDisabled(false);
+
 }
 
 // Retirer article
@@ -67,7 +85,8 @@ void CaisseWindow::delArticle()
 		caisse_->removeToTotal(a->prix);
 	}
 
-	// Decalage------------------------------------------------------------------- + REPETITION
+
+	// REPETITION
 	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
 	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
 }
@@ -82,6 +101,9 @@ void CaisseWindow::articleHasBeenDeleted(Article* article)
 			break;
 		}
 	}
+
+	if (articlesList_->count() == 0)
+		delArticleButton_->setDisabled(true);
 }
 
 // Renialiser les articles
@@ -94,6 +116,8 @@ void CaisseWindow::reniArticles()
 	for (Article* a : toDelete) {
 		caisse_->delArticle(a);
 	}
+
+	delArticleButton_->setDisabled(true);
 }
 
 //Affichage
@@ -124,9 +148,10 @@ void CaisseWindow::setUI()
 	connect(addArticleButton, SIGNAL(clicked()), this, SLOT(addArticle()));
 
 	//	Bouton pour retirer un article.
-	QPushButton* delArticleButton = new QPushButton(this);
-	delArticleButton->setText("Retirer");
-	connect(delArticleButton, SIGNAL(clicked()), this, SLOT(delArticle()));
+	delArticleButton_ = new QPushButton(this);
+	delArticleButton_->setText("Retirer");
+	delArticleButton_->setDisabled(true);
+	connect(delArticleButton_, SIGNAL(clicked()), this, SLOT(delArticle()));
 
 	//	Bouton pour reinitiliser.
 	QPushButton* renitializeButton = new QPushButton(this);
@@ -147,14 +172,14 @@ void CaisseWindow::setUI()
 	menuLayout->addLayout(descriptionLayout);
 	menuLayout->addLayout(prixLayout);
 	menuLayout->addWidget(addArticleButton);
-	menuLayout->addWidget(delArticleButton);
+	menuLayout->addWidget(delArticleButton_);
 	menuLayout->addWidget(renitializeButton);
 	menuLayout->addLayout(taxLayout);
 
 	// ------------------------ Deuxieme partie du layout -----------------------------
 	//	Affichage des articles.
 	QLabel* descriptListLabel = new QLabel;
-	descriptListLabel->setText("Description \t prix \t taxable");
+	descriptListLabel->setText("Article ajouté au panier");
 	articlesList_ = new QListWidget(this);
 
 	//	Affichage des totaux
@@ -165,11 +190,9 @@ void CaisseWindow::setUI()
 	QLabel* sousTotalLabel = new QLabel;
 	sousTotalLabel->setText("Sous-Total: ");
 
-
 	QHBoxLayout* sousTotalLayout = new QHBoxLayout;
 	sousTotalLayout->addWidget(sousTotalLabel);
 	sousTotalLayout->addWidget(prixBTaxLabel_);
-
 
 	QLabel* totalTaxLabel = new QLabel;
 	totalTaxLabel->setText("Tax: ");
@@ -199,7 +222,6 @@ void CaisseWindow::setUI()
 	//	
 	QWidget* widget = new QWidget;
 	widget->setLayout(mainLayout);
-
 
 	setCentralWidget(widget);
 

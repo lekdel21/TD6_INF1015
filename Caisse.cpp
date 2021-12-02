@@ -13,8 +13,15 @@ Caisse::Caisse() : totalSansTax_(0)
 // slots
 void Caisse::addArticle(Article* article)
 {
-	articles_.push_back(article); 
-	emit articleAdded(article);
+	if (article->description == "" || article->prix == 0)
+	{
+		throw invalid_argument("Les informations sur l'article sont incomplets.");
+	}
+	else
+	{
+		articles_.push_back(article);
+		emit articleAdded(article);
+	}
 }
 
 void Caisse::delArticle(Article* article)
