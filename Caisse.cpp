@@ -9,6 +9,16 @@ Caisse::Caisse() : totalSansTax_(0)
 	articles_ = {};
 }
 
+Caisse::~Caisse()
+{
+	while (!articles_.empty())
+	{
+		delete articles_.back();
+		articles_.back() = nullptr;
+		articles_.pop_back();
+	}
+}
+
 
 // slots
 void Caisse::addArticle(Article* article)

@@ -21,6 +21,7 @@ class Caisse : public QObject
 	Q_OBJECT
 public:
 	Caisse();
+	~Caisse();
 	double getTotal() { return totalSansTax_; }
 	void addToTotal(double ajout) { totalSansTax_ += ajout; }
 	void removeToTotal(double enleve) { totalSansTax_ -= enleve; }

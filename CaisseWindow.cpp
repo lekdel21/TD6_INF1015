@@ -28,7 +28,11 @@ CaisseWindow::CaisseWindow(QWidget* parent) :
 	setup();
 
 }
-CaisseWindow::~CaisseWindow() {};
+CaisseWindow::~CaisseWindow()
+{
+	caisse_->~Caisse();
+	//delete  caisse_; // Throw an error for some reason
+}
 
 
 // Ajout d'article

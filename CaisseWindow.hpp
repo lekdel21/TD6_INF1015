@@ -10,6 +10,7 @@
 #include <QCheckBox>
 #include <QListWidget>
 #include <QLabel>
+#include <memory>
 #pragma pop()
 
 class CaisseWindow : public QMainWindow 
