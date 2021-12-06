@@ -25,6 +25,7 @@ public slots:
 	void addArticle();
 	void delArticle();
 	void reniArticles();
+	void modifyTotaux();
 
 	void articleHasBeenAdded(Article* article);
 	void articleHasBeenDeleted(Article* article);
@@ -38,6 +39,6 @@ private:
 	QListWidget* articlesList_;
 	QLineEdit* descriptionEditor_, * prixEditor_;
 	QCheckBox* taxEditor_;
-	QLabel* prixBTaxLabel_;
+	QLabel *prixBTaxLabel_, *prixTaxLabel_;
 	QPushButton* delArticleButton_;
 };

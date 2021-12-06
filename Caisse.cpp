@@ -40,6 +40,21 @@ void Caisse::delArticle(Article* article)
 	if (it != articles_.end()) {
 		Article* a = *it;
 		articles_.erase(it);
+		emit articleDeleted(a);
 	}
-	emit articleDeleted(article);
+}
+
+double Caisse::totalTaxs(const function<double(double)>& critere)
+{
+	int i = 0;
+	double total = 0;
+	while (articles_[i] != articles_.back())
+	{
+		if (articles_[i]->taxable)
+		{
+			total += critere(articles_[i]->prix);
+		}
+		i++;
+	}
+	return total;
 }

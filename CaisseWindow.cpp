@@ -53,10 +53,7 @@ void CaisseWindow::addArticle()
 	}
 	caisse_->addToTotal(newArticle->prix);
 
-
-	// REPETITION
-	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
-	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	modifyTotaux();
 }
 
 void CaisseWindow::articleHasBeenAdded(Article* article)
@@ -81,18 +78,17 @@ void CaisseWindow::articleHasBeenAdded(Article* article)
 void CaisseWindow::delArticle()
 {
 	vector<Article*> toDelete;
-	for (QListWidgetItem* item : articlesList_->selectedItems()) {
+	for (QListWidgetItem* item : articlesList_->selectedItems()) 
+	{
 		toDelete.push_back(item->data(Qt::UserRole).value<Article*>());
 	}
 	for (Article* a : toDelete) {
 		caisse_->delArticle(a);
 		caisse_->removeToTotal(a->prix);
+		delete a;
 	}
 
-
-	// REPETITION
-	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
-	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	modifyTotaux();
 }
 
 void CaisseWindow::articleHasBeenDeleted(Article* article)
@@ -119,9 +115,16 @@ void CaisseWindow::reniArticles()
 	}
 	for (Article* a : toDelete) {
 		caisse_->delArticle(a);
+		delete a;
 	}
 
 	delArticleButton_->setDisabled(true);
+}
+
+void CaisseWindow::modifyTotaux()
+{
+	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
+	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
 }
 
 //Affichage
@@ -188,8 +191,7 @@ void CaisseWindow::setUI()
 
 	//	Affichage des totaux
 	prixBTaxLabel_ = new QLabel;
-	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
-	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	modifyTotaux();
 
 	QLabel* sousTotalLabel = new QLabel;
 	sousTotalLabel->setText("Sous-Total: ");
@@ -200,6 +202,11 @@ void CaisseWindow::setUI()
 
 	QLabel* totalTaxLabel = new QLabel;
 	totalTaxLabel->setText("Tax: ");
+
+	QHBoxLayout* totalTxLayout = new QHBoxLayout;
+	totalTxLayout->addWidget(totalTaxLabel);
+	//totalTxLayout->addWidget(prixTaxLabel_);
+
 
 	QLabel* prixATaxLabel = new QLabel;
 	prixATaxLabel->setText("Total: ");
