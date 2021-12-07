@@ -39,6 +39,6 @@ private:
 	QListWidget* articlesList_;
 	QLineEdit* descriptionEditor_, * prixEditor_;
 	QCheckBox* taxEditor_;
-	QLabel *prixBTaxLabel_, *prixTaxLabel_;
+	QLabel *prixBTaxLabel_, *prixTaxLabel_, *totalLabel_;
 	QPushButton* delArticleButton_;
 };

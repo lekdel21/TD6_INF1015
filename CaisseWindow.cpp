@@ -117,14 +117,27 @@ void CaisseWindow::reniArticles()
 		caisse_->delArticle(a);
 		delete a;
 	}
-
 	delArticleButton_->setDisabled(true);
 }
 
 void CaisseWindow::modifyTotaux()
 {
-	int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
-	prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	double totalTax = 120;//caisse_->totalTaxs([](double t) {return t * 0.14975; });
+	{
+		int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
+		prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	}
+
+	{
+		int tailleTotal = to_string(totalTax).size() - 4;
+		prixTaxLabel_->setText((to_string(round(totalTax * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	}
+
+	{
+		double total = caisse_->getTotal() + totalTax;//caisse_->totalTaxs([](double t) {return t * 0.14975; });
+		int tailleTotal = to_string(total).size() - 4;
+		totalLabel_->setText((to_string(round(total * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
+	}
 }
 
 //Affichage
@@ -190,8 +203,9 @@ void CaisseWindow::setUI()
 	articlesList_ = new QListWidget(this);
 
 	//	Affichage des totaux
+
+	// PRIX SANS LES TAXS:
 	prixBTaxLabel_ = new QLabel;
-	modifyTotaux();
 
 	QLabel* sousTotalLabel = new QLabel;
 	sousTotalLabel->setText("Sous-Total: ");
@@ -200,16 +214,28 @@ void CaisseWindow::setUI()
 	sousTotalLayout->addWidget(sousTotalLabel);
 	sousTotalLayout->addWidget(prixBTaxLabel_);
 
+	// TAX TOTAL:
+	prixTaxLabel_ = new QLabel;
+
 	QLabel* totalTaxLabel = new QLabel;
 	totalTaxLabel->setText("Tax: ");
 
-	QHBoxLayout* totalTxLayout = new QHBoxLayout;
-	totalTxLayout->addWidget(totalTaxLabel);
-	//totalTxLayout->addWidget(prixTaxLabel_);
+	QHBoxLayout* totalTaxLayout = new QHBoxLayout;
+	totalTaxLayout->addWidget(totalTaxLabel);
+	totalTaxLayout->addWidget(prixTaxLabel_);
 
+
+	// PRIX TOTAL AVEC LES TAXS:
+	totalLabel_ = new QLabel;
 
 	QLabel* prixATaxLabel = new QLabel;
 	prixATaxLabel->setText("Total: ");
+
+	QHBoxLayout* totalLayout = new QHBoxLayout;
+	totalLayout->addWidget(prixATaxLabel);
+	totalLayout->addWidget(totalLabel_);
+
+	modifyTotaux();
 
 
 	//	 On place tout dans la deuxieme boite verticale.
@@ -217,8 +243,8 @@ void CaisseWindow::setUI()
 	listLayout->addWidget(descriptListLabel);
 	listLayout->addWidget(articlesList_);
 	listLayout->addLayout(sousTotalLayout);
-	listLayout->addWidget(totalTaxLabel);
-	listLayout->addWidget(prixATaxLabel);
+	listLayout->addLayout(totalTaxLayout);
+	listLayout->addLayout(totalLayout);
 
 	//	Ligne de separation.
 	QFrame* verticalFrameLine = new QFrame;
