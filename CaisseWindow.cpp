@@ -122,7 +122,7 @@ void CaisseWindow::reniArticles()
 
 void CaisseWindow::modifyTotaux()
 {
-	double totalTax = 120;//caisse_->totalTaxs([](double t) {return t * 0.14975; });
+	double totalTax = caisse_->totalTaxs([](double t) {return t * 0.14975; });
 	{
 		int tailleTotal = to_string(caisse_->getTotal()).size() - 4;
 		prixBTaxLabel_->setText((to_string(round(caisse_->getTotal() * 100) / 100).erase(tailleTotal, 4) + "$").c_str());
