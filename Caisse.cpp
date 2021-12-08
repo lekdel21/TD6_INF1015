@@ -46,7 +46,7 @@ void Caisse::delArticle(Article* article)
 
 double Caisse::totalTaxs(const function<double(double)>& critere)
 {
-	int i = 0;
+	/*int i = 0;
 	double total = 0;
 	while (articles_[i] != articles_.back())
 	{
@@ -57,4 +57,6 @@ double Caisse::totalTaxs(const function<double(double)>& critere)
 		i++;
 	}
 	return total;
+	*/
+	for_each(articles_.cbegin(), articles_.cend(), critere);
 }
