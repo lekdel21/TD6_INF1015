@@ -25,7 +25,7 @@ public:
 	double getTotal() { return totalSansTax_; }
 	void addToTotal(double ajout) { totalSansTax_ += ajout; }
 	void removeToTotal(double enleve) { totalSansTax_ -= enleve; }
-	double totalTaxs(const function<double(double)>& critere);
+	double totalTaxs();
 
 public slots:
 	void addArticle(Article* article);
